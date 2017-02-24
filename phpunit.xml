@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="./tests/bootstrap.php">
+
+    <testsuites>
+        <testsuite>
+            <directory>./tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">./lib</directory>
+        </whitelist>
+        <blacklist>
+            <directory>./build</directory>
+        </blacklist>
+    </filter>
+
+    <logging>
+        <log type="coverage-html"
+             target="./build/coverage"
+             charset="UTF-8"
+             yui="true"
+             highlight="true"
+             lowUpperBound="50"
+             highLowerBound="80"/>
+    </logging>
+
+</phpunit>

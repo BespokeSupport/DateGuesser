@@ -1,0 +1,14 @@
+{
+  "name": "bespoke-support/date-guesser",
+  "description": "Data Guesser (Standard (non-US) format only)",
+  "license": "MIT",
+  "require": {
+    "php": "^5|^7",
+    "nesbot/carbon": "1.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "BespokeSupport\\DateGuesser\\": "lib/"
+    }
+  }
+}
