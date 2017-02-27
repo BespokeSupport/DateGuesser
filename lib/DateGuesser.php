@@ -79,7 +79,7 @@ class DateGuesser
             return null;
         }
 
-        if (preg_match('#^\w+$#', $time)) {
+        if (preg_match('#^\W+$#', $time)) {
             return null;
         }
 
