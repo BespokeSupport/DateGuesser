@@ -5,8 +5,7 @@ namespace BespokeSupport\DateGuesser;
 use Carbon\Carbon;
 
 /**
- * Class DateGuesser
- * @package BespokeSupport\DateGuesser
+ * Class DateGuesser.
  */
 class DateGuesser
 {
@@ -49,11 +48,12 @@ class DateGuesser
         'jny',
 
         // unix time
-        'U'
+        'U',
     ];
 
     /**
      * DateGuesser constructor.
+     *
      * @param $time
      */
     public function __construct($time)
@@ -63,6 +63,7 @@ class DateGuesser
 
     /**
      * @param int|string|\DateTimeInterface|null $time
+     *
      * @return Carbon
      */
     public static function create($time)
@@ -72,15 +73,15 @@ class DateGuesser
         }
 
         if (!$time) {
-            return null;
+            return;
         }
 
         if (is_numeric($time) && $time < 100) {
-            return null;
+            return;
         }
 
         if (preg_match('#^\W+$#', $time)) {
-            return null;
+            return;
         }
 
         $obj = null;
@@ -112,7 +113,7 @@ class DateGuesser
                 // prevent 30-01-17 to become 2030-01-17
                 if (preg_match('#^\d{2}.\d{2}.\d{2}#', $time)) {
                     if (substr($obj->year, -2, 2) == substr($time, 0, 2)) {
-                        return null;
+                        return;
                     }
                 }
 
@@ -120,7 +121,5 @@ class DateGuesser
             }
         } catch (\Exception $exception) {
         }
-
-        return null;
     }
 }
