@@ -5,35 +5,36 @@ use Carbon\Carbon;
 /**
  * Class DateGuesserTest.
  */
-class DateGuesserTest extends \PHPUnit_Framework_TestCase
+class DateGuesserTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @param $expected
      * @param Carbon|null $returned
+     * @param $input
      */
-    protected function responseCheck($expected, $returned)
+    protected function responseCheck($expected, $returned, $input)
     {
-        if (is_null($expected)) {
+        if ($expected === null) {
             $this->assertNull($returned);
         } else {
-            $this->assertEquals($expected->year, $returned->year);
-            $this->assertEquals($expected->month, $returned->month);
-            $this->assertEquals($expected->day, $returned->day);
-            $this->assertEquals($expected->hour, $returned->hour);
-            $this->assertEquals($expected->minute, $returned->minute);
-            $this->assertEquals($expected->second, $returned->second);
+            $this->assertEquals($expected->year, $returned->year, "'$input' '$expected' '$returned'");
+            $this->assertEquals($expected->month, $returned->month, "'$input' '$expected' '$returned'");
+            $this->assertEquals($expected->day, $returned->day, "'$input' '$expected' '$returned'");
+            $this->assertEquals($expected->hour, $returned->hour, "'$input' '$expected' '$returned'");
+            $this->assertEquals($expected->minute, $returned->minute, "'$input' '$expected' '$returned'");
+            $this->assertEquals($expected->second, $returned->second, "'$input' '$expected' '$returned'");
         }
     }
 
     public function testBasic()
     {
         $dates = [
-            '20/Mar/2017' => Carbon::create(2017, 3, 20),
-            '20/03/2017'  => Carbon::create(2017, 3, 20),
-            '20/3/2017'   => Carbon::create(2017, 3, 20),
-            '2/3/2017'    => Carbon::create(2017, 3, 2),
-            '1/3/2017'    => Carbon::create(2017, 3, 1),
-            '3/1/2017'    => Carbon::create(2017, 1, 3),
+            '20/Mar/2017' => Carbon::create(2017, 3, 20, 0, 0, 0),
+            '20/03/2017'  => Carbon::create(2017, 3, 20, 0, 0, 0),
+            '20/3/2017'   => Carbon::create(2017, 3, 20, 0, 0, 0),
+            '2/3/2017'    => Carbon::create(2017, 3, 2, 0, 0, 0),
+            '1/3/2017'    => Carbon::create(2017, 3, 1, 0, 0, 0),
+            '3/1/2017'    => Carbon::create(2017, 1, 3, 0, 0, 0),
         ];
 
         /**
@@ -43,13 +44,13 @@ class DateGuesserTest extends \PHPUnit_Framework_TestCase
         foreach ($dates as $date => $expected) {
             $returned = \BespokeSupport\DateGuesser\DateGuesser::create($date);
 
-            if (is_null($expected)) {
+            if ($expected === null) {
                 $this->assertNull($returned);
             } else {
                 $this->assertNotNull($returned);
             }
 
-            $this->responseCheck($expected, $returned);
+            $this->responseCheck($expected, $returned, $date);
         }
     }
 
@@ -66,13 +67,13 @@ class DateGuesserTest extends \PHPUnit_Framework_TestCase
         foreach ($dates as $date => $expected) {
             $returned = \BespokeSupport\DateGuesser\DateGuesser::create($date);
 
-            if (is_null($expected)) {
+            if ($expected === null) {
                 $this->assertNull($returned);
             } else {
                 $this->assertNotNull($returned);
             }
 
-            $this->responseCheck($expected, $returned);
+            $this->responseCheck($expected, $returned, $date);
         }
     }
 
@@ -90,6 +91,7 @@ class DateGuesserTest extends \PHPUnit_Framework_TestCase
             '11/33/17 23:59:59.000' => null,
             '1/DDD/2017'            => null,
             ''                      => null,
+            '+'                     => null,
             null                    => null,
             1                       => null,
             false                   => null,
@@ -103,14 +105,13 @@ class DateGuesserTest extends \PHPUnit_Framework_TestCase
          */
         foreach ($dates as $date => $expected) {
             $returned = \BespokeSupport\DateGuesser\DateGuesser::create($date);
-
-            if (is_null($expected)) {
-                $this->assertNull($returned);
+            if ($expected === null) {
+                $this->assertNull($returned, 'Invalid Date = ' . $date);
             } else {
                 $this->assertNotNull($returned);
             }
 
-            $this->responseCheck($expected, $returned);
+            $this->responseCheck($expected, $returned, $date);
         }
     }
 
@@ -127,13 +128,13 @@ class DateGuesserTest extends \PHPUnit_Framework_TestCase
         foreach ($dates as $date => $expected) {
             $returned = \BespokeSupport\DateGuesser\DateGuesser::create($date);
 
-            if (is_null($expected)) {
+            if ($expected === null) {
                 $this->assertNull($returned);
             } else {
                 $this->assertNotNull($returned);
             }
 
-            $this->responseCheck($expected, $returned);
+            $this->responseCheck($expected, $returned, $date);
         }
     }
 
@@ -172,33 +173,48 @@ class DateGuesserTest extends \PHPUnit_Framework_TestCase
     {
         \BespokeSupport\DateGuesser\DateGuesser::$attemptFormatsAdditional[] = 'd-m-y H:i';
 
-        $expected = Carbon::create(2017, 12, 31, 13, 59, 00);
-        $returned = \BespokeSupport\DateGuesser\DateGuesser::create('31-12-17 13:59');
+        $date = '31-12-17 13:59';
 
-        if (is_null($expected)) {
+        $expected = Carbon::create(2017, 12, 31, 13, 59, 00);
+        $returned = \BespokeSupport\DateGuesser\DateGuesser::create($date);
+
+        if ($expected === null) {
             $this->assertNull($returned);
         } else {
             $this->assertNotNull($returned);
         }
 
-        $this->responseCheck($expected, $returned);
+        $this->responseCheck($expected, $returned, $date);
     }
 
     public function testNewFormatMicro()
     {
         \BespokeSupport\DateGuesser\DateGuesser::$attemptFormatsAdditional[] = 'd-m-y H:i:s.u';
 
-        $expected = Carbon::create(2017, 12, 31, 13, 59, 59);
-        $returned = \BespokeSupport\DateGuesser\DateGuesser::create('31-12-17 13:59:59.01');
+        $date = '31-12-17 13:59:59.01';
 
-        if (is_null($expected)) {
+        $expected = Carbon::create(2017, 12, 31, 13, 59, 59);
+        $returned = \BespokeSupport\DateGuesser\DateGuesser::create($date);
+
+        if ($expected === null) {
             $this->assertNull($returned);
         } else {
             $this->assertNotNull($returned);
         }
 
-        $this->responseCheck($expected, $returned);
+        $this->responseCheck($expected, $returned, $date);
 
         $this->assertEquals(10000, $returned->micro);
+    }
+
+    public function testZero()
+    {
+        $date = '31-12-17';
+
+        $returned = \BespokeSupport\DateGuesser\DateGuesser::create($date);
+
+        $this->assertEquals(0, $returned->hour);
+
+
     }
 }
