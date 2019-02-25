@@ -3,8 +3,15 @@
   "description": "Data Guesser (Standard (non-US) format only)",
   "license": "MIT",
   "require": {
-    "php": "^5|^7",
-    "nesbot/carbon": "^1|^2"
+    "php": "^5|^7"
+  },
+  "suggest": {
+    "nesbot/carbon": "^1|^2",
+    "cakephp/chronos": "^1.2"
+  },
+  "require-dev":  {
+    "nesbot/carbon": "^1|^2",
+    "cakephp/chronos": "^1.2"
   },
   "autoload": {
     "psr-4": {

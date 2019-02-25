@@ -2,6 +2,7 @@
 
 namespace BespokeSupport\DateGuesser;
 
+use Cake\Chronos\Chronos;
 use Carbon\Carbon;
 use DateTimeInterface;
 use Exception;
@@ -65,12 +66,12 @@ class DateGuesser
     /**
      * @param int|string|DateTimeInterface|null $time
      *
-     * @return Carbon
+     * @return Carbon|Chronos|DateTimeInterface
      */
     public static function create($time)
     {
         if ($time instanceof DateTimeInterface) {
-            return new Carbon($time);
+            return self::createFromClass($time);
         }
 
         if (!$time) {
@@ -85,7 +86,7 @@ class DateGuesser
             return null;
         }
 
-        $time = (string) $time;
+        $time = (string)$time;
 
         $obj = null;
 
@@ -95,8 +96,8 @@ class DateGuesser
             }
 
             try {
-                $obj = Carbon::createFromFormat($format, $time);
-                $errors = Carbon::getLastErrors();
+                $obj = self::createFromFormat($format, $time);
+                $errors = self::errorsFromLastAttempt();
             } catch (Exception $exception) {
                 continue;
             }
@@ -119,7 +120,8 @@ class DateGuesser
         }
 
         try {
-            $obj = new Carbon($time);
+            $obj = self::createFromClass($time);
+
             if (strlen($obj->year) === 4) {
                 // prevent 30-01-17 to become 2030-01-17
                 if (preg_match('#^\d{2}.\d{2}.\d{2}#', $time) && strpos($time, substr($obj->year, -2, 2)) === 0) {
@@ -138,11 +140,65 @@ class DateGuesser
     }
 
     /**
-     * @param Carbon $obj
+     * @param Chronos|Carbon|DateTimeInterface $obj
      * @return mixed
      */
-    protected static function setTimeToZero(Carbon $obj)
+    protected static function setTimeToZero(DateTimeInterface $obj)
     {
         return $obj->setTime(0, 0);
+    }
+
+    /**
+     * @param $time
+     * @return Chronos|Carbon
+     */
+    protected static function createFromClass($time)
+    {
+        switch (true) {
+            case (class_exists(Chronos::class)):
+                return new Chronos($time);
+            case (class_exists(Carbon::class)):
+                try {
+                    return new Carbon($time);
+                } catch (Exception $e) {
+                }
+        }
+
+        throw new \LogicException('Carbon / Chronos required');
+    }
+
+    /**
+     * @param $format
+     * @param $time
+     * @return bool|Chronos|\DateTime
+     */
+    protected static function createFromFormat($format, $time)
+    {
+        switch (true) {
+            case (class_exists(Chronos::class)):
+                return Chronos::createFromFormat($format, $time);
+            case (class_exists(Carbon::class)):
+                $obj = Carbon::createFromFormat($format, $time);
+                if ($obj instanceof Carbon) {
+                    return $obj;
+                }
+        }
+
+        throw new \LogicException('Carbon / Chronos required');
+    }
+
+    /**
+     * @return array
+     */
+    protected static function errorsFromLastAttempt()
+    {
+        switch (true) {
+            case (class_exists(Chronos::class)):
+                return Chronos::getLastErrors();
+            case (class_exists(Carbon::class)):
+                return Carbon::getLastErrors();
+        }
+
+        throw new \LogicException('Carbon / Chronos required');
     }
 }
